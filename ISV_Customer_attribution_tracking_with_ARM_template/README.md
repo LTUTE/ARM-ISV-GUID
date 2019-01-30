@@ -7,25 +7,11 @@
 * ресурснaя группа
 * название операции развёртывания (deployment).
 
-При создании ARM шаблона в дополнение к уже описанным ресурсам добавляется ресурс типа  “Microsoft.Resources/deployments”, a GUID используется как название этого ресурса (см. картинку ниже).  Это название в дальнейшем используется как фильтр для отслеживания ресурсов запущенных создателем программного обеспечения в подписке клиента.
+При создании ARM шаблона в дополнение к уже описанным в шаблоне ресурсам добавляется ресурс типа  “Microsoft.Resources/deployments”, a GUID используется как название этого ресурса (см. картинку ниже).  Это название в дальнейшем используется как фильтр для отслеживания ресурсов запущенных создателем программного обеспечения в подписке клиента.
 
-`# добавьте этот ресурс в секцию resources в mainTemplate.json шаблон, а сгенерированное значение GUID добавьте как значение в поле "name" `
-```json
-{ 
-    "apiVersion": "2018-02-01",
-    "name": "pid-XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX",
-    "type": "Microsoft.Resources/deployments",
-    "properties": {
-        "mode": "Incremental",
-        "template": {
-            "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-            "contentVersion": "1.0.0.0",
-            "resources": []
-        }
-    }
-} 
-```
-Тот же самый GUID можно использовать для развёртывания разных продуктов у клиента. Более удобная опция, когда каждый продукт использует свой уникальный GUID. Например, GUID1 для программы А, GUID2 для программы Б и т.д. Это позволяет получать более опраятные отчёты о потреблении ресурсов в [Cloud Partner Portal](https://cloudpartner.azure.com/).
+![alt text](https://github.com/LTUTE/ARM-ISV-GUID/blob/master/Pictures/delploy-resourse.jpg)
+
+Тот же самый GUID можно использовать для развёртывания разных продуктов у клиента. Более удобная опция, когда каждый продукт использует свой уникальный GUID. Например, GUID1 для программы А, GUID2 для программы Б и т.д. Это позволяет получать более опрятные отчёты о потреблении ресурсов в [Cloud Partner Portal](https://cloudpartner.azure.com/).
 
 # Процедура создания GUID
 
@@ -34,15 +20,20 @@
 * PowerShell команда: 
 ```PowerShell 
 PS > New-Guid 
-```
+``
 * Linux и MacOS: 
 ```bash 
 user:~$ uuidgen
 ```
 
-# Регистрируем GUID в Cloud Partner Portal. 
+# Регистрирование GUID в Cloud Partner Portal. 
 1. В  левом верхнем углу выбираем *“Publisher profile”*
+
+![alt text](https://github.com/LTUTE/ARM-ISV-GUID/blob/master/Pictures/publisherprofile.png)
+
 2. В секции *“Azure Application Usage Tracking GUIDs”* нажимаем ссылку “Add tracking GUID” и в появившееся окно добавляем сгенерированный GUID и короткое описание.
+![alt text](https://github.com/LTUTE/ARM-ISV-GUID/blob/master/Pictures/App-usage-tracking-guid.png)
+
 3. Сохраняем изменения.
 
 # Добавление GUID в существующую ресурсную группу с помощью PowerShell
@@ -57,6 +48,7 @@ user:~$ uuidgen
 4.	Из присланого архива открываем документ под названием “Template.json”. Он содержит информацию о текущей конфигурации ресурсов в группе.
  
 5.	 В секцию ресурсы ("resources":)  добавляем код, и как значение ключа “name”, добавляем значение ключа с префиксом “pid-“, например: "pid-xxxxxxx-xxxx-xxxx-xxxx-xxxxxx93897". Сохраняем “template.json” в удобном для нас месте.
+`# добавьте этот ресурс в секцию resources в mainTemplate.json шаблон, а сгенерированное значение GUID добавьте как значение в поле "name" `
 ```json
        { 
             "apiVersion": "2018-02-01",
@@ -83,11 +75,11 @@ Install-Module -Name Az -AllowClobber -Scope CurrentUser
 ```
 b.	Подключаемся к Аzure: 
 ```PowerShell
-Connect-AzAccount
+PS > Connect-AzAccount
 ```
 c.	По умолчанию вы подключитесь в вашу подписку по умолчанию, при необходимости переключитесь к подписке содержащей интересующие вас ресурсы: 
 ```PowerShell
-Select-AzSubscription -SubscriptionName "имя подписки" 
+PS > Select-AzSubscription -SubscriptionName "имя подписки" 
 ```
 d.	Запускаем PowerShell скрипт для внедрения конфигурации в облако и подаём параметры 
 i.	имя ресурсной группы в которую хотим добавить GUID, в описанном в этом документе это “Kubespray”
