@@ -42,7 +42,11 @@ user:~$ uuidgen
 
 # Регистрируем GUID в Cloud Partner Portal. 
 1. В  левом верхнем углу выбираем *“Publisher profile”*
+
+![alt text](https://github.com/LTUTE/ARM-ISV-GUID/blob/master/Pictures/publisherprofile.png)
+
 2. В секции *“Azure Application Usage Tracking GUIDs”* нажимаем ссылку “Add tracking GUID” и в появившееся окно добавляем сгенерированный GUID и короткое описание.
+![alt text](https://github.com/LTUTE/ARM-ISV-GUID/blob/master/Pictures/App-usage-tracking-guid.png)
 3. Сохраняем изменения.
 
 # Добавление GUID в существующую ресурсную группу с помощью PowerShell
