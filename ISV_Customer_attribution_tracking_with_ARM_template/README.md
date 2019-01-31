@@ -20,13 +20,13 @@
 * PowerShell команда: 
 ```PowerShell 
 PS > New-Guid 
-``
+```
 * Linux и MacOS: 
 ```bash 
 user:~$ uuidgen
 ```
 
-# Регистрирование GUID в Cloud Partner Portal. 
+# Регистрация GUID в Cloud Partner Portal. 
 1. В  левом верхнем углу выбираем *“Publisher profile”*
 
 ![alt text](https://github.com/LTUTE/ARM-ISV-GUID/blob/master/Pictures/publisherprofile.png)
@@ -35,18 +35,20 @@ user:~$ uuidgen
 ![alt text](https://github.com/LTUTE/ARM-ISV-GUID/blob/master/Pictures/App-usage-tracking-guid.png)
 
 3. Сохраняем изменения.
+![alt text](https://github.com/LTUTE/ARM-ISV-GUID/blob/master/Pictures/save-guid.png)
 
 # Добавление GUID в существующую ресурсную группу с помощью PowerShell
 Предлогаемый способ основан на В данном примере используется 5.0 версия PowerShell и PоwerShell модуль для Azure версии 1.1.0. 
 
 1.	Переходим на *Azure portal -> Resource Groups -> Интересующая нас группа*. Запоминаем регион в котором находится ресурсная группа.
+![alt text](https://github.com/LTUTE/ARM-ISV-GUID/blob/master/Pictures/RG.png)
  
 2.	В ресурсной группе переходим в секцию *“Settings” -> “Automation Scripts”*
- 
+ ![alt text](https://github.com/LTUTE/ARM-ISV-GUID/blob/master/Pictures/automationscript.png)
 3.	Выбираем *“Download”*
- 
+ ![alt text](https://github.com/LTUTE/ARM-ISV-GUID/blob/master/Pictures/download_tempalte.png)
 4.	Из присланого архива открываем документ под названием “Template.json”. Он содержит информацию о текущей конфигурации ресурсов в группе.
- 
+ ![alt text](https://github.com/LTUTE/ARM-ISV-GUID/blob/master/Pictures/templatezip.png)
 5.	 В секцию ресурсы ("resources":)  добавляем код, и как значение ключа “name”, добавляем значение ключа с префиксом “pid-“, например: "pid-xxxxxxx-xxxx-xxxx-xxxx-xxxxxx93897". Сохраняем “template.json” в удобном для нас месте.
 `# добавьте этот ресурс в секцию resources в mainTemplate.json шаблон, а сгенерированное значение GUID добавьте как значение в поле "name" `
 ```json
@@ -94,10 +96,10 @@ New-AzResourceGroup -Name $resourceGroupName -Location $location
 New-AzResourceGroupDeployment -Name $deploymentName -ResourceGroupName $resourceGroupName -TemplateFile "путь к файлу template.json" -Mode Incremental
 ```
 e.	Получаем результат похожий на указанный ниже:
- 
+ ![alt text](https://github.com/LTUTE/ARM-ISV-GUID/blob/master/Pictures/ps-arm-deploy.png)
 9.	С помощью PowerShell скрипта тестируем какие из ресурсов идентифицируются по GUID. Исходный код скрипта можно найти [здесь](https://gist.github.com/stuartleeks/ed84b0cc242b0abed85a9aea0b032fc3).  GUID и название ресурсной группы вводятся как параметры скрипта. Используем ту же PowerShell сессию, что и для запуска предидущих команд PowerShell. 
- 
+ ![alt text](https://github.com/LTUTE/ARM-ISV-GUID/blob/master/Pictures/ps-guid-test.png)
 	Получаем результат аналогичный показанному ниже, в котором видны названия ресурсов.
- 
+ ![alt text](https://github.com/LTUTE/ARM-ISV-GUID/blob/master/Pictures/ps-guid-test-result.png)
 
 
