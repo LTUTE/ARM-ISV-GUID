@@ -113,7 +113,7 @@ PS > Install-Module -Name Az -AllowClobber
 ```
 или в пользовательском режиме:
 ```PowerShell
-Install-Module -Name Az -AllowClobber -Scope CurrentUser
+PS > Install-Module -Name Az -AllowClobber -Scope CurrentUser
 ```
 3.	Подключаемся к Аzure: 
 ```PowerShell
