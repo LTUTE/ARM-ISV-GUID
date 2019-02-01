@@ -30,7 +30,7 @@ user:~$ uuidgen
 ```
 
 # Регистрация GUID в Cloud Publisher Portal. 
-Если у вас нет учётной записи в Cloud Publisher Portal, то вам нужно создать новую запись. Процедуру создания новой учётной записи описана [здесь](https://docs.microsoft.com/en-us/azure/marketplace/become-publisher). 
+Если нет учётной записи в Cloud Publisher Portal, то создаём новую запись. Процедура создания новой учётной записи описана [здесь](https://docs.microsoft.com/en-us/azure/marketplace/become-publisher). 
 
 
 1. Подсоединяемся к [Cloud Partner Portal](https://cloudpartner.azure.com/). В  левом верхнем углу выбираем *“Publisher profile”*
@@ -46,9 +46,9 @@ user:~$ uuidgen
 ![alt text](https://github.com/LTUTE/ARM-ISV-GUID/blob/master/Pictures/save-guid.png)
 
 # Добавление GUID в существующую ресурсную группу с помощью PowerShell
-Описанный ниже метод позволяет добавить GUID к уже сушествующим ресурсам. Метод основан на использовании функции [экспортирования ARM шаблона для ресурсной группы](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-manager-export-template#export-the-template-from-resource-group) и [инкрементного внедерения](https://docs.microsoft.com/en-us/azure/azure-resource-manager/deployment-modes) шаблона. 
+Описанный ниже метод позволяет добавить GUID к уже сушествующим ресурсам. Метод основан на использовании функции [экспортирования ARM шаблона для ресурсной группы](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-manager-export-template#export-the-template-from-resource-group) и [инкрементного внедерения](https://docs.microsoft.com/en-us/azure/azure-resource-manager/deployment-modes) ARM шаблона. 
 
-ВАЖНО!: Этот метод не подходт для равёртываний групп в которых описано больше 200 ресурсов. Так же, в зависимости от того как изначально были развёрнуты ресурсы в Azure и были ли использованы расширения Азуре ([Azure VM/SQL extentions](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-manager-tutorial-deploy-vm-extensions)], секреты, пароли и т.д, экспортированный шаблон может требовать большого количества модификаций и понимания того как работает ARM. Самый быстрый способ оценить количевство работы - это взглянув на yeкспортированный шаблон.
+_ВАЖНО!_ Этот метод не подходт для равёртываний групп в которых описано больше 200 ресурсов. Так же, в зависимости от того как изначально были развёрнуты ресурсы в Azure и были ли использованы расширения Азуре ([Azure VM/SQL extentions](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-manager-tutorial-deploy-vm-extensions)], секреты, пароли и т.д, экспортированный шаблон может требовать большого количества модификаций и понимания того как работает ARM. Один из способов оценить количевство работы - это взглянуть на экспортированный шаблон и оценить количевство параметров с нулевым значением - эти значения надо будет модифицировать вручную. Так же, при возможности, запуск шаблона тестируем в тестовой среде.
 
 ```json
 {
@@ -56,25 +56,29 @@ user:~$ uuidgen
     "contentVersion": "1.0.0.0",
     "parameters": {
         "extensions_configureAppVM_storageAccountName": {
-            "defaultValue": null,
+            "defaultValue": null, //нулевое значение
             "type": "SecureString"
         },
         "extensions_configureAppVM_storageAccountKey": {
-            "defaultValue": null,
+            "defaultValue": null, //нулевое значение
             "type": "SecureString"
         },...
 ```
 	
-## Экспортирование шаблона чере портал Azure
+## Экспортирование шаблона через портал Azure
 1.	Переходим на *Azure portal -> Resource Groups -> Интересующая нас группа*. Запоминаем регион в котором находится ресурсная группа.
 
 ![alt text](https://github.com/LTUTE/ARM-ISV-GUID/blob/master/Pictures/RG.png)
  
 2.	В ресурсной группе переходим в секцию *“Settings” -> “Automation Scripts”*
+
  ![alt text](https://github.com/LTUTE/ARM-ISV-GUID/blob/master/Pictures/automationscript.png)
+ 
 3.	Выбираем *“Download”*
+
  ![alt text](https://github.com/LTUTE/ARM-ISV-GUID/blob/master/Pictures/download_tempalte.png)
-4.	Из присланого архива открываем документ под названием “Template.json”. Он содержит информацию о текущей конфигурации ресурсов в группе.
+ 
+4.	Из присланного архива открываем документ под названием “Template.json”. Он содержит информацию о текущей конфигурации ресурсов в группе.
  ![alt text](https://github.com/LTUTE/ARM-ISV-GUID/blob/master/Pictures/templatezip.png)
 5.	 В секцию ресурсы ("resources":)  добавляем код, и как значение ключа “name”, добавляем значение ключа с префиксом “pid-“, например: "pid-xxxxxxx-xxxx-xxxx-xxxx-xxxxxx93897". Сохраняем “template.json” в удобном для нас месте.
 `# добавьте этот ресурс в секцию resources в mainTemplate.json шаблон, а сгенерированное значение GUID добавьте как значение в поле "name" `
@@ -93,27 +97,29 @@ user:~$ uuidgen
             }
         },
 ```
-6.	Открываем PowerShell (команды в зависимости от версии PowerShell могут отличаться). Пример показан для версии PowerShell 5.0 с использованием Az модуля. 
-a.	Внедряем Azure PowerShell модуль в режиме администратора: 
+## Запуск шаблона с помощью PowerShell
+
+1.	Открываем PowerShell (команды в зависимости от версии PowerShell могут отличаться). Пример показан для версии PowerShell 5.0 с использованием Az модуля. 
+2.	Внедряем Azure PowerShell модуль в режиме администратора: 
 ```PowerShell
 PS > Install-Module -Name Az -AllowClobber
 ```
-или пользовательском режиме:
+или в пользовательском режиме:
 ```PowerShell
 Install-Module -Name Az -AllowClobber -Scope CurrentUser
 ```
-b.	Подключаемся к Аzure: 
+3.	Подключаемся к Аzure: 
 ```PowerShell
 PS > Connect-AzAccount
 ```
-c.	По умолчанию вы подключитесь в вашу подписку по умолчанию, при необходимости переключитесь к подписке содержащей интересующие вас ресурсы: 
+4.	По умолчанию, мы подключаемся в подписку по умолчанию (default subscription), при необходимости переключаемся к подписке содержащей интересующие нас ресурсы: 
 ```PowerShell
 PS > Select-AzSubscription -SubscriptionName "имя подписки" 
 ```
-d.	Запускаем PowerShell скрипт для внедрения конфигурации в облако и подаём параметры 
-i.	имя ресурсной группы в которую хотим добавить GUID, в описанном в этом документе это “Kubespray”
-ii.	название операции внедрения – может быть любое название
-iii.	название региона в котором находится ресурсная группа.
+5.	Запускаем PowerShell скрипт для внедрения конфигурации в облако и подаём параметры 
+  a.	имя ресурсной группы в которую хотим добавить GUID, в описанном в этом документе это “Kubespray”
+  b.	название операции внедрения – может быть любое название
+  c.	название региона в котором находится ресурсная группа.
 ```PowerShell
 $resourceGroupName = Read-Host -Prompt "Enter the Resource Group name"
 $deploymentName = Read-Host -Prompt "Enter the name for this deployment"
@@ -122,7 +128,7 @@ $location = Read-Host -Prompt "Enter the location (i.e. centralus)"
 New-AzResourceGroup -Name $resourceGroupName -Location $location
 New-AzResourceGroupDeployment -Name $deploymentName -ResourceGroupName $resourceGroupName -TemplateFile "путь к файлу template.json" -Mode Incremental
 ```
-e.	Получаем результат похожий на показанный ниже:
+6.	Получаем результат похожий на показанный ниже:
  ![alt text](https://github.com/LTUTE/ARM-ISV-GUID/blob/master/Pictures/ps-arm-deploy.png)
  
  #Тестирование полученных результатов
