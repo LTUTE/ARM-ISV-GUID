@@ -6,8 +6,8 @@
 [ARM шаблон](https://docs.microsoft.com/en-us/azure/templates/) - это шаблон используемый [Azure Resource Manager](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-overview) для автоматического развёртывания ресурсов в подписке Azure. ARM шаблон позволяет описать ресурсы в формате [JSON](https://json.org/) (Java Script Object Notation). Больше информации о структуре шаблона можно найти [здесь](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-authoring-templates).
 
 Каждое развёртывание в Azure идентифицируется по 3 параметрам: 
-* ID подпискa
-* ресурснaя группа
+* ID подпискa;
+* ресурснaя группа;
 * название операции развёртывания (deployment).
 
 При создании ARM шаблона в дополнение к уже описанным в шаблоне ресурсам добавляется ресурс типа  “Microsoft.Resources/deployments”, a GUID используется как название этого ресурса (см. картинку ниже).  Это название в дальнейшем используется как фильтр для отслеживания ресурсов запущенных создателем программного обеспечения в подписке клиента.
@@ -48,7 +48,7 @@ user:~$ uuidgen
 # Добавление GUID в существующую ресурсную группу с помощью PowerShell
 Описанный ниже метод позволяет добавить GUID к уже сушествующим ресурсам. Метод основан на использовании функции [экспортирования ARM шаблона для ресурсной группы](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-manager-export-template#export-the-template-from-resource-group) и [инкрементного внедерения](https://docs.microsoft.com/en-us/azure/azure-resource-manager/deployment-modes) ARM шаблона. 
 
-_ВАЖНО!_ Этот метод не подходт для равёртываний групп в которых описано больше 200 ресурсов. Так же, в зависимости от того как изначально были развёрнуты ресурсы в Azure и были ли использованы расширения Азуре ([Azure VM/SQL extentions](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-manager-tutorial-deploy-vm-extensions)], секреты, пароли и т.д, экспортированный шаблон может требовать большого количества модификаций и понимания того как работает ARM. Один из способов оценить количевство работы - это взглянуть на экспортированный шаблон и оценить количевство параметров с нулевым значением - эти значения надо будет модифицировать вручную. Так же, при возможности, запуск шаблона тестируем в тестовой среде.
+__ВАЖНО!__ Этот метод не подходт для равёртываний групп в которых описано больше 200 ресурсов. Так же, в зависимости от того как изначально были развёрнуты ресурсы в Azure и были ли использованы расширения Азуре ([Azure VM/SQL extentions](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-manager-tutorial-deploy-vm-extensions)], секреты, пароли и т.д, экспортированный шаблон может требовать большого количества модификаций и понимания того как работает ARM. Один из способов оценить количевство работы - это взглянуть на экспортированный шаблон и оценить количевство параметров с нулевым значением - эти значения надо будет модифицировать вручную. Так же, при возможности, запуск шаблона тестируем в тестовой среде.
 
 ```json
 {
@@ -112,13 +112,13 @@ Install-Module -Name Az -AllowClobber -Scope CurrentUser
 ```PowerShell
 PS > Connect-AzAccount
 ```
-4.	По умолчанию, мы подключаемся в подписку по умолчанию (default subscription), при необходимости переключаемся к подписке содержащей интересующие нас ресурсы: 
+4.	По умолчанию, мы подключаемся в подписку по умолчанию (default subscription). При необходимости, переключаемся к подписке содержащей интересующие нас ресурсы: 
 ```PowerShell
 PS > Select-AzSubscription -SubscriptionName "имя подписки" 
 ```
 5.	Запускаем PowerShell скрипт для внедрения конфигурации в облако и подаём параметры 
-  a.	имя ресурсной группы в которую хотим добавить GUID, в описанном в этом документе это “Kubespray”
-  b.	название операции внедрения – может быть любое название
+  a.	имя ресурсной группы в которую хотим добавить GUID (в этом документе это “Kubespray”);
+  b.	название операции внедрения – может быть любое название;
   c.	название региона в котором находится ресурсная группа.
 ```PowerShell
 $resourceGroupName = Read-Host -Prompt "Enter the Resource Group name"
@@ -129,10 +129,11 @@ New-AzResourceGroup -Name $resourceGroupName -Location $location
 New-AzResourceGroupDeployment -Name $deploymentName -ResourceGroupName $resourceGroupName -TemplateFile "путь к файлу template.json" -Mode Incremental
 ```
 6.	Получаем результат похожий на показанный ниже:
+
  ![alt text](https://github.com/LTUTE/ARM-ISV-GUID/blob/master/Pictures/ps-arm-deploy.png)
  
  #Тестирование полученных результатов
-1.	С помощью PowerShell скрипта тестируем какие из ресурсов идентифицируются по GUID. Исходный код скрипта можно найти [здесь](https://gist.github.com/stuartleeks/ed84b0cc242b0abed85a9aea0b032fc3). GUID и название ресурсной группы вводятся как параметры скрипта (см. ниже). Используем ту же PowerShell сессию, что и для запуска предидущих команд PowerShell.
+1.	С помощью PowerShell скрипта тестируем какие из ресурсов идентифицируются по GUID. Исходный код скрипта можно найти [здесь](https://gist.github.com/stuartleeks/ed84b0cc242b0abed85a9aea0b032fc3). GUID и название ресурсной группы вводятся как параметры скрипта (см. ниже). Используем ту же Azure PowerShell сессию, что и для запуска предидущих команд PowerShell.
 
  ![alt text](https://github.com/LTUTE/ARM-ISV-GUID/blob/master/Pictures/ps-guid-test.png)
  
