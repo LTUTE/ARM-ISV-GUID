@@ -18,7 +18,7 @@
 
 # Процедура создания GUID
 
-1.	Создаём GUID выбрав одну из ниже указанных опции:
+1.	Создаём GUID ипользуя одну из ниже перечисленных опции:
 * Веб [форма для генераторации GUID](https://forms.office.com/Pages/ResponsePage.aspx?id=v4j5cvGGr0GRqy180BHbR3i8TQB_XnRAsV3-7XmQFpFUMVRVVFFLTDFLS0E2QzNYSkFZR1U3WVJCTSQlQCN0PWcu) - GUID высылается на указанную вами почту;
 * PowerShell команда: 
 ```PowerShell 
